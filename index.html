@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1769aa">
+  <title>Age Calculator</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px 16px;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      color: #243247;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      padding: 28px 22px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px #00000012;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      text-align: center;
+      font-size: 27px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #667085;
+      margin: 0 0 28px;
+    }
+
+    label {
+      display: block;
+      margin: 18px 0 8px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      font-size: 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      background: white;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 24px;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      background: #1769aa;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #result {
+      margin-top: 22px;
+      padding: 16px 10px;
+      border-radius: 10px;
+      background: #edf7ff;
+      text-align: center;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+
+    .hint {
+      color: #667085;
+      font-size: 13px;
+      text-align: center;
+      margin-top: 18px;
+    }
+  </style>
+  <link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+</head>
+
+<body>
+  <main class="card">
+    <h1>Age Calculator</h1>
+    <p class="subtitle">Calculate your exact age</p>
+
+    <label for="birth">Date of Birth</label>
+    <input type="date" id="birth">
+
+    <label for="end">Calculate Age On</label>
+    <input type="date" id="end">
+
+    <button id="calculate">Calculate Age</button>
+
+    <div id="result" role="status" aria-live="polite">
+      Enter both dates to calculate your age.
+    </div>
+
+    <p class="hint">Your dates are processed on this device.</p>
+  </main>
+
+  <script>
+    const birthInput = document.getElementById("birth");
+    const endInput = document.getElementById("end");
+    const result = document.getElementById("result");
+
+    function parseDate(value) {
+      if (!value) return null;
+
+      const [year, month, day] = value.split("-").map(Number);
+      return { year, month, day };
+    }
+
+    function calculateAge() {
+      const birth = parseDate(birthInput.value);
+      const end = parseDate(endInput.value);
+
+      if (!birth || !end) {
+        result.textContent = "Please enter both dates.";
+        return;
+      }
+
+      const birthKey = birthInput.value;
+      const endKey = endInput.value;
+
+      if (birthKey > endKey) {
+        result.textContent =
+          "The second date must be on or after your birth date.";
+        return;
+      }
+
+      let years = end.year - birth.year;
+      let months = end.month - birth.month;
+      let days = end.day - birth.day;
+
+      if (days < 0) {
+        const previousMonth = end.month === 1 ? 12 : end.month - 1;
+        const previousYear =
+          end.month === 1 ? end.year - 1 : end.year;
+
+        const daysInPreviousMonth =
+          new Date(Date.UTC(previousYear, previousMonth, 0))
+            .getUTCDate();
+
+        days += daysInPreviousMonth;
+        months--;
+      }
+
+      if (months < 0) {
+        months += 12;
+        years--;
+      }
+
+      result.textContent =
+        `Age: ${years} years, ${months} months, ${days} days`;
+    }
+
+    document.getElementById("calculate")
+      .addEventListener("click", calculateAge);
+
+    endInput.value = new Date().toLocaleDateString("en-CA");
+  </script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./service-worker.js")
+        .catch(error => console.error("Service Worker:", error));
+    });
+  }
+</script>
+</body>
+</html>
